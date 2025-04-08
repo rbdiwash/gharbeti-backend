@@ -1,0 +1,2 @@
+.qodo
+echo "node_modules/" > .gitignore
