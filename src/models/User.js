@@ -18,6 +18,10 @@ const UserSchema = new mongoose.Schema(
       ref: "landlord", // refers to the landlord
       default: null,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

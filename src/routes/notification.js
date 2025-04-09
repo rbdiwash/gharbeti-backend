@@ -1,7 +1,5 @@
-// routes/notifications.js
-import express from "express";
-import Notification from "../models/notification.js";
-
+const express = require("express");
+const Notification = require("../models/Notification");
 const router = express.Router();
 
 // Send Buzz
@@ -23,8 +21,6 @@ router.post("/send", async (req, res) => {
     res.status(500).json({ error: "Something went wrong", details: err });
   }
 });
-
-export default router;
 
 router.get("/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -62,3 +58,6 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// export default router;
+module.exports = router;

@@ -16,6 +16,7 @@ const registerUser = async (req, res) => {
     if (user) {
       res.status(201).json({
         _id: user.id,
+        landlordId: user.id,
         name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
