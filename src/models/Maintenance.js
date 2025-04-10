@@ -4,7 +4,7 @@ const updateSchema = new mongoose.Schema({
   updateType: {
     type: String,
     enum: ["statusChange", "comment"],
-    required: true,
+    required: false,
   },
   status: String,
   comment: String,

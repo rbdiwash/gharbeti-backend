@@ -19,20 +19,21 @@ router.post("/", async (req, res) => {
 });
 
 // 🔵 Get all messages between two users
-router.get("/:user1Id/:user2Id", async (req, res) => {
-  const { user1Id, user2Id } = req.params;
+router.get("/:user1/:user2", async (req, res) => {
+  const { user1, user2 } = req.params;
 
   try {
     const messages = await Message.find({
       $or: [
-        { senderId: user1Id, receiverId: user2Id },
-        { senderId: user2Id, receiverId: user1Id },
+        { sender: user1, receiver: user2 },
+        { sender: user2, receiver: user1 },
       ],
-    }).sort({ createdAt: 1 }); // oldest to newest
+    }).sort({ createdAt: 1 }); // sort from oldest to newest
 
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(200).json({ messages });
+  } catch (error) {
+    console.error("Error fetching messages:", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
