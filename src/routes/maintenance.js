@@ -28,6 +28,20 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET maintenance request by ID
+router.get("/:id", async (req, res) => {
+  console.log(req, res);
+  try {
+    const maintenance = await Maintenance.findById(req.params.id);
+    if (!maintenance) {
+      return res.status(404).json({ message: "Maintenance request not found" });
+    }
+    res.json(maintenance);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 // 🟡 Update Status or Add Comment (Landlord)
 router.put("/:id/update", async (req, res) => {
   const { updateType, status, comment, updatedBy } = req.body;
