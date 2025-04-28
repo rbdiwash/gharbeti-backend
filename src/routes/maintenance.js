@@ -15,11 +15,16 @@ router.post("/", async (req, res) => {
 
 // 🔵 Get All Maintenance Requests (Optional filter by landlord or tenant)
 router.get("/", async (req, res) => {
-  const { landlordId, tenantId } = req.query;
+  const { landlordId, tenantId, status } = req.query;
+
   const filter = {};
   if (landlordId) filter.landlordId = landlordId;
   if (tenantId) filter.tenantId = tenantId;
-
+  if (status) {
+    filter.status = status;
+  } else {
+    filter.status = "Pending"; // Default to Pending if status is not provided
+  }
   try {
     const requests = await Maintenance.find(filter).sort({ createdAt: -1 });
     res.json(requests);

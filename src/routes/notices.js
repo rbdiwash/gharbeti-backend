@@ -3,7 +3,8 @@ const Notice = require("../models/Notice");
 const router = express.Router();
 
 // CREATE Notice
-router.post("/notices", async (req, res) => {
+router.post("/", async (req, res) => {
+  console.log(req.body);
   try {
     const newNotice = new Notice(req.body);
     const savedNotice = await newNotice.save();
@@ -15,8 +16,14 @@ router.post("/notices", async (req, res) => {
 
 // READ all Notices
 router.get("/", async (req, res) => {
+  const { type } = req.query;
+  const filter = {};
+  // If the type is "all", don't filter by type, just fetch all notices
+  if (type && type !== "all") {
+    filter.type = type;
+  }
   try {
-    const notices = await Notice.find().sort({ createdAt: -1 });
+    const notices = await Notice.find(filter).sort({ createdAt: -1 });
     res.status(200).json(notices || []);
   } catch (err) {
     res.status(500).json({ message: err.message });
