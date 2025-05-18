@@ -9,7 +9,7 @@ const notificatonRoutes = require("./src/routes/notification");
 const maintenanceRoutes = require("./src/routes/maintenance");
 const leaseAgreementRoutes = require("./src/routes/leaseAgreement");
 const messageRoutes = require("./src/routes/messages");
-
+const tenantRoutes = require("./src/routes/tenants");
 dotenv.config();
 connectDB();
 
@@ -24,6 +24,7 @@ app.use("/api/notifications", notificatonRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/lease-agreements", leaseAgreementRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/tenants", tenantRoutes);
 
 app.get("/", (req, res) => {
   res.send("API is running...");

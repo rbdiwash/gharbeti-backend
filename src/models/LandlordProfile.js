@@ -12,4 +12,4 @@ const landLordProfile = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Notice", landLordProfile);
+module.exports = mongoose.model("LandlordProfile", landLordProfile);

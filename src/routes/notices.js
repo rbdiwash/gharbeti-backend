@@ -1,10 +1,10 @@
 const express = require("express");
 const Notice = require("../models/Notice");
+const User = require("../models/User");
 const router = express.Router();
 
 // CREATE Notice
 router.post("/", async (req, res) => {
-  console.log(req.body);
   try {
     const newNotice = new Notice(req.body);
     const savedNotice = await newNotice.save();
@@ -17,6 +17,7 @@ router.post("/", async (req, res) => {
 // READ all Notices
 router.get("/", async (req, res) => {
   const { type } = req.query;
+  console.log("type", req);
   const filter = {};
   // If the type is "all", don't filter by type, just fetch all notices
   if (type && type !== "all") {

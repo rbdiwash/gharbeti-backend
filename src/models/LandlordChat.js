@@ -12,4 +12,4 @@ const landlordChat = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Notice", landlordChat);
+module.exports = mongoose.model("LandlordChat", landlordChat);

@@ -14,8 +14,8 @@ const UserSchema = new mongoose.Schema(
       default: Date.now,
     },
     landlordId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "landlord", // refers to the landlord
+      type: mongoose.Schema.ObjectId,
+      ref: "User", // Changed from "landlord" to "User"
       default: null,
     },
     isVerified: {
