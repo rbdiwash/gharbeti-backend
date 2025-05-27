@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Tenant = require("../models/Tenant");
+const bcrypt = require("bcryptjs");
 
 // GET all registered users
 router.get("/", async (req, res) => {
@@ -68,18 +69,44 @@ router.get("/tenants/:landlordId", async (req, res) => {
 
 router.post("/change-password", async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
+  console.log("Change password request body:", req.body);
+
+  // Validate required fields
+  if (!email || !currentPassword || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing required fields",
+      required: ["email", "currentPassword", "newPassword"],
+      received: {
+        email,
+        currentPassword: !!currentPassword,
+        newPassword: !!newPassword,
+      },
+    });
+  }
 
   try {
     // Find the user
     const user = await User.findOne({ email });
+    console.log("Found user:", user ? "Yes" : "No");
+
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
     // Verify current password
     const isMatch = await bcrypt.compare(currentPassword, user.password);
+    console.log("Password match:", isMatch ? "Yes" : "No");
+
     if (!isMatch) {
-      return res.status(400).json({ message: "Current password is incorrect" });
+      return res.status(400).json({
+        success: false,
+        message: "Current password is incorrect",
+        error: "INVALID_PASSWORD",
+      });
     }
 
     // Hash new password
@@ -90,12 +117,18 @@ router.post("/change-password", async (req, res) => {
     user.password = hashedPassword;
     await user.save();
 
-    res.status(200).json({ message: "Password changed successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+    });
   } catch (error) {
     console.error("Error changing password:", error);
-    res
-      .status(500)
-      .json({ message: "Error changing password", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error changing password",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 });
 

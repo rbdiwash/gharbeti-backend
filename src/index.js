@@ -1,17 +1,17 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const connectDB = require("./src/config/db");
-const authRoutes = require("./src/routes/authRoutes");
-const noticeRoutes = require("./src/routes/notices");
-const userRoutes = require("./src/routes/user");
-const notificatonRoutes = require("./src/routes/notification");
-const maintenanceRoutes = require("./src/routes/maintenance");
-const leaseAgreementRoutes = require("./src/routes/leaseAgreement");
-const messageRoutes = require("./src/routes/messages");
-const tenantRoutes = require("./src/routes/tenants");
-const profileRoutes = require("./src/routes/profile");
-const propertyRoutes = require("./src/routes/property");
+const connectDB = require("../src/config/db");
+const authRoutes = require("../src/routes/authRoutes");
+const noticeRoutes = require("../src/routes/notices");
+const userRoutes = require("../src/routes/user");
+const notificatonRoutes = require("../src/routes/notification");
+const maintenanceRoutes = require("../src/routes/maintenance");
+const leaseAgreementRoutes = require("../src/routes/leaseAgreement");
+const messageRoutes = require("../src/routes/messages");
+const tenantRoutes = require("../src/routes/tenants");
+const profileRoutes = require("../src/routes/profile");
+const propertyRoutes = require("../src/routes/property");
 dotenv.config();
 connectDB();
 

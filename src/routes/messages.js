@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
   try {
     const newMessage = new Message({ senderId, receiverId, message });
     const savedMessage = await newMessage.save();
-    res.status(201).json(savedMessage);
+    res.status(201).json({ messages: [savedMessage] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -25,8 +25,8 @@ router.get("/:user1/:user2", async (req, res) => {
   try {
     const messages = await Message.find({
       $or: [
-        { sender: user1, receiver: user2 },
-        { sender: user2, receiver: user1 },
+        { senderId: user1, receiverId: user2 },
+        { senderId: user2, receiverId: user1 },
       ],
     }).sort({ createdAt: 1 }); // sort from oldest to newest
 
