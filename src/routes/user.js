@@ -132,44 +132,102 @@ router.post("/change-password", async (req, res) => {
   }
 });
 
-// Reset password (forgot password scenario)
+// Reset Password with Token
 router.post("/reset-password", async (req, res) => {
-  const { email, invitationCode, newPassword } = req.body;
+  const { email, token, newPassword } = req.body;
+
+  // Validate required fields
+  if (!email || !token || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing required fields",
+      required: ["email", "token", "newPassword"],
+      received: {
+        email: !!email,
+        token: !!token,
+        newPassword: !!newPassword,
+      },
+    });
+  }
 
   try {
     // Find the user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      email,
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // For tenants, verify invitation code
-    if (user.role === "tenant") {
-      const tenant = await Tenant.findOne({ email, invitationCode });
-      if (!tenant) {
-        return res
-          .status(404)
-          .json({ message: "Invalid email or invitation code" });
-      }
-
-      // Update tenant status
-      tenant.inviteAccepted = true;
-      tenant.isVerified = true;
-      tenant.active = true;
-      await tenant.save();
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset token",
+      });
     }
 
     // Hash new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Update password
+    // Update password and clear reset token fields
     user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
     await user.save();
 
     res.status(200).json({
-      message: "Password reset successfully",
-      data: {
+      success: true,
+      message: "Password has been reset successfully",
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error resetting password",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
+  }
+});
+
+// Admin Reset User Password
+router.post("/admin/reset-password", async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  // Validate required fields
+  if (!email || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing required fields",
+      required: ["email", "newPassword"],
+      received: {
+        email: !!email,
+        newPassword: !!newPassword,
+      },
+    });
+  }
+
+  try {
+    // Find the user
+    const user = await User.findOne({ email });
+    console.log("Found user:", user ? "Yes" : "No");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Set the new password directly - the pre-save hook will hash it
+    user.password = newPassword;
+    await user.save();
+    console.log("Password updated successfully");
+
+    res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully",
+      user: {
         email: user.email,
         name: user.name,
         role: user.role,
@@ -177,9 +235,12 @@ router.post("/reset-password", async (req, res) => {
     });
   } catch (error) {
     console.error("Error resetting password:", error);
-    res
-      .status(500)
-      .json({ message: "Error resetting password", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error resetting password",
+      error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 });
 

@@ -21,6 +21,8 @@ const UserSchema = new mongoose.Schema(
     inviteAccepted: { type: Boolean, default: false },
     active: { type: Boolean, default: true },
     documentsVerified: { type: Boolean, default: false },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
     createdAt: {
       type: Date,
       default: Date.now,
