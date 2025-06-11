@@ -2,7 +2,49 @@ const express = require("express");
 const LeaseAgreement = require("../models/LeaseAgreement");
 const router = express.Router();
 
-// 🟢 Add/Update Lease Agreement (Landlord)
+/**
+ * @swagger
+ * /api/lease-agreements:
+ *   post:
+ *     summary: Create or update a lease agreement
+ *     tags: [Lease Agreements]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - landlordId
+ *               - agreementPoints
+ *             properties:
+ *               landlordId:
+ *                 type: string
+ *                 description: ID of the landlord
+ *               agreementPoints:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of agreement points
+ *     responses:
+ *       200:
+ *         description: Lease agreement created or updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 agreement:
+ *                   $ref: '#/components/schemas/LeaseAgreement'
+ *       400:
+ *         description: Invalid input
+ *       500:
+ *         description: Server error
+ */
 router.post("/", async (req, res) => {
   const { landlordId, agreementPoints } = req.body;
 
@@ -51,7 +93,36 @@ router.post("/", async (req, res) => {
   }
 });
 
-// 🔵 Get Lease Agreement by Landlord ID
+/**
+ * @swagger
+ * /api/lease-agreements/{landlordId}:
+ *   get:
+ *     summary: Get lease agreement by landlord ID
+ *     tags: [Lease Agreements]
+ *     parameters:
+ *       - in: path
+ *         name: landlordId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the landlord
+ *     responses:
+ *       200:
+ *         description: Lease agreement found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 agreement:
+ *                   $ref: '#/components/schemas/LeaseAgreement'
+ *       404:
+ *         description: No agreement found
+ *       500:
+ *         description: Server error
+ */
 router.get("/:landlordId", async (req, res) => {
   try {
     const leases = await LeaseAgreement.findOne({
@@ -82,7 +153,52 @@ router.get("/:landlordId", async (req, res) => {
   }
 });
 
-// Update lease agreement by ID
+/**
+ * @swagger
+ * /api/lease-agreements/{id}:
+ *   patch:
+ *     summary: Update lease agreement by ID
+ *     tags: [Lease Agreements]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the lease agreement
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - agreementPoints
+ *             properties:
+ *               agreementPoints:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of agreement points
+ *     responses:
+ *       200:
+ *         description: Lease agreement updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 agreement:
+ *                   $ref: '#/components/schemas/LeaseAgreement'
+ *       404:
+ *         description: Lease agreement not found
+ *       500:
+ *         description: Server error
+ */
 router.patch("/:id", async (req, res) => {
   try {
     const { agreementPoints } = req.body;

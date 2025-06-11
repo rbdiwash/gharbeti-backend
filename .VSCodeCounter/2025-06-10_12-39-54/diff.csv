@@ -1,0 +1,17 @@
+"filename", "language", "JavaScript", "JSON", "comment", "blank", "total"
+"/Users/divash/Projects/gharbeti-backend/package-lock.json", "JSON", 0, 1600, 0, 1, 1601
+"/Users/divash/Projects/gharbeti-backend/package.json", "JSON", 0, 2, 0, 0, 2
+"/Users/divash/Projects/gharbeti-backend/src/config/swagger.js", "JavaScript", 45, 0, 0, 4, 49
+"/Users/divash/Projects/gharbeti-backend/src/controllers/authController.js", "JavaScript", 23, 0, 2, 4, 29
+"/Users/divash/Projects/gharbeti-backend/src/index.js", "JavaScript", 41, 0, 1, 6, 48
+"/Users/divash/Projects/gharbeti-backend/src/models/Payment.js", "JavaScript", 65, 0, 0, 3, 68
+"/Users/divash/Projects/gharbeti-backend/src/models/User.js", "JavaScript", 7, 0, 1, 0, 8
+"/Users/divash/Projects/gharbeti-backend/src/routes/authRoutes.js", "JavaScript", 5, 0, 0, 0, 5
+"/Users/divash/Projects/gharbeti-backend/src/routes/leaseAgreement.js", "JavaScript", 45, 0, 118, 4, 167
+"/Users/divash/Projects/gharbeti-backend/src/routes/maintenance.js", "JavaScript", 23, 0, 6, 8, 37
+"/Users/divash/Projects/gharbeti-backend/src/routes/notification.js", "JavaScript", -51, 0, -4, -9, -64
+"/Users/divash/Projects/gharbeti-backend/src/routes/notifications.js", "JavaScript", 51, 0, 4, 9, 64
+"/Users/divash/Projects/gharbeti-backend/src/routes/payments.js", "JavaScript", 149, 0, 40, 21, 210
+"/Users/divash/Projects/gharbeti-backend/src/routes/user.js", "JavaScript", 131, 0, 10, 13, 154
+"/Users/divash/Projects/gharbeti-backend/src/utils/rentCalculator.js", "JavaScript", 20, 0, 3, 6, 29
+"Total", "-", 554, 1602, 181, 70, 2407

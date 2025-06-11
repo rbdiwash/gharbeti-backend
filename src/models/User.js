@@ -21,6 +21,12 @@ const UserSchema = new mongoose.Schema(
     inviteAccepted: { type: Boolean, default: false },
     active: { type: Boolean, default: true },
     documentsVerified: { type: Boolean, default: false },
+    // Payment tracking fields
+    nextDueDate: { type: Date },
+    nextDueAmount: { type: Number, default: 0 },
+    totalPaidAmount: { type: Number, default: 0 },
+    lastPaymentDate: { type: Date },
+    lastPaymentAmount: { type: Number, default: 0 },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     createdAt: {

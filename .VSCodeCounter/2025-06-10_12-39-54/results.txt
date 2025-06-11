@@ -1,0 +1,77 @@
+Date : 2025-06-10 12:39:54
+Directory : /Users/divash/Projects/gharbeti-backend
+Total : 37 files,  3856 codes, 303 comments, 323 blanks, all 4482 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JavaScript |         34 |      2,227 |        300 |        317 |      2,844 |
+| JSON       |          2 |      1,626 |          0 |          2 |      1,628 |
+| Properties |          1 |          3 |          3 |          4 |         10 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                      | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                         |         37 |      3,856 |        303 |        323 |      4,482 |
+| . (Files)                                                                 |          4 |      1,665 |          3 |         11 |      1,679 |
+| src                                                                       |         33 |      2,191 |        300 |        312 |      2,803 |
+| src (Files)                                                               |          2 |         41 |          1 |          7 |         49 |
+| src/config                                                                |          2 |         56 |          0 |          7 |         63 |
+| src/controllers                                                           |          1 |        365 |         22 |         42 |        429 |
+| src/middleware                                                            |          1 |         23 |          4 |          8 |         35 |
+| src/middlewares                                                           |          1 |         21 |          0 |          4 |         25 |
+| src/models                                                                |         12 |        384 |          4 |         39 |        427 |
+| src/models (Files)                                                        |         11 |        358 |          4 |         36 |        398 |
+| src/models/Landlord                                                       |          1 |         26 |          0 |          3 |         29 |
+| src/routes                                                                |         12 |      1,276 |        266 |        196 |      1,738 |
+| src/routes (Files)                                                        |         11 |      1,236 |        264 |        189 |      1,689 |
+| src/routes/Landlord                                                       |          1 |         40 |          2 |          7 |         49 |
+| src/utils                                                                 |          2 |         25 |          3 |          9 |         37 |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                  | language   | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| /Users/divash/Projects/gharbeti-backend/.env                              | Properties |          3 |          3 |          4 |         10 |
+| /Users/divash/Projects/gharbeti-backend/index.js                          | JavaScript |         36 |          0 |          5 |         41 |
+| /Users/divash/Projects/gharbeti-backend/package-lock.json                 | JSON       |      1,600 |          0 |          1 |      1,601 |
+| /Users/divash/Projects/gharbeti-backend/package.json                      | JSON       |         26 |          0 |          1 |         27 |
+| /Users/divash/Projects/gharbeti-backend/src/app.js                        | JavaScript |          0 |          0 |          1 |          1 |
+| /Users/divash/Projects/gharbeti-backend/src/config/db.js                  | JavaScript |         11 |          0 |          3 |         14 |
+| /Users/divash/Projects/gharbeti-backend/src/config/swagger.js             | JavaScript |         45 |          0 |          4 |         49 |
+| /Users/divash/Projects/gharbeti-backend/src/controllers/authController.js | JavaScript |        365 |         22 |         42 |        429 |
+| /Users/divash/Projects/gharbeti-backend/src/index.js                      | JavaScript |         41 |          1 |          6 |         48 |
+| /Users/divash/Projects/gharbeti-backend/src/middleware/authMiddleware.js  | JavaScript |         23 |          4 |          8 |         35 |
+| /Users/divash/Projects/gharbeti-backend/src/middlewares/authMiddleware.js | JavaScript |         21 |          0 |          4 |         25 |
+| /Users/divash/Projects/gharbeti-backend/src/models/Landlord/buzz.js       | JavaScript |         26 |          0 |          3 |         29 |
+| /Users/divash/Projects/gharbeti-backend/src/models/LandlordChat.js        | JavaScript |         13 |          0 |          3 |         16 |
+| /Users/divash/Projects/gharbeti-backend/src/models/LandlordProfile.js     | JavaScript |         13 |          0 |          3 |         16 |
+| /Users/divash/Projects/gharbeti-backend/src/models/LeaseAgreement.js      | JavaScript |         16 |          0 |          3 |         19 |
+| /Users/divash/Projects/gharbeti-backend/src/models/Maintenance.js         | JavaScript |         42 |          0 |          4 |         46 |
+| /Users/divash/Projects/gharbeti-backend/src/models/Message.js             | JavaScript |         25 |          0 |          3 |         28 |
+| /Users/divash/Projects/gharbeti-backend/src/models/Notice.js              | JavaScript |         15 |          0 |          3 |         18 |
+| /Users/divash/Projects/gharbeti-backend/src/models/Notification.js        | JavaScript |         34 |          1 |          3 |         38 |
+| /Users/divash/Projects/gharbeti-backend/src/models/Payment.js             | JavaScript |         65 |          0 |          3 |         68 |
+| /Users/divash/Projects/gharbeti-backend/src/models/Property.js            | JavaScript |         47 |          0 |          3 |         50 |
+| /Users/divash/Projects/gharbeti-backend/src/models/Tenant.js              | JavaScript |         40 |          1 |          4 |         45 |
+| /Users/divash/Projects/gharbeti-backend/src/models/User.js                | JavaScript |         48 |          2 |          4 |         54 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/Landlord/buzz.js       | JavaScript |         40 |          2 |          7 |         49 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/authRoutes.js          | JavaScript |         11 |          0 |          3 |         14 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/leaseAgreement.js      | JavaScript |        105 |        122 |         15 |        242 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/maintenance.js         | JavaScript |         89 |         10 |         18 |        117 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/messages.js            | JavaScript |         32 |          2 |          7 |         41 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/notices.js             | JavaScript |         61 |          6 |          7 |         74 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/notifications.js       | JavaScript |         51 |          4 |          9 |         64 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/payments.js            | JavaScript |        149 |         40 |         21 |        210 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/profile.js             | JavaScript |          6 |          2 |          4 |         12 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/property.js            | JavaScript |         81 |          5 |         12 |         98 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/tenants.js             | JavaScript |        376 |         47 |         53 |        476 |
+| /Users/divash/Projects/gharbeti-backend/src/routes/user.js                | JavaScript |        275 |         26 |         40 |        341 |
+| /Users/divash/Projects/gharbeti-backend/src/utils/generateToken.js        | JavaScript |          5 |          0 |          3 |          8 |
+| /Users/divash/Projects/gharbeti-backend/src/utils/rentCalculator.js       | JavaScript |         20 |          3 |          6 |         29 |
+| Total                                                                     |            |      3,856 |        303 |        323 |      4,482 |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+

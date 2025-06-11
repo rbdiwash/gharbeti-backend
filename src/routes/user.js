@@ -4,6 +4,8 @@ const router = express.Router();
 const User = require("../models/User");
 const Tenant = require("../models/Tenant");
 const bcrypt = require("bcryptjs");
+const Payment = require("../models/Payment");
+const { calculateRentDue } = require("../utils/rentCalculator");
 
 // GET all registered users
 router.get("/", async (req, res) => {
@@ -39,11 +41,55 @@ router.get("/tenants", async (req, res) => {
       .populate("landlordId", "name email")
       .select("-password");
 
-    res.status(200).json(tenants);
+    // Get payment information for each tenant
+    const tenantsWithPayments = await Promise.all(
+      tenants.map(async (tenant) => {
+        // Get the last payment
+        const lastPayment = await Payment.findOne({
+          tenantId: tenant._id,
+        }).sort({ paymentDate: -1 });
+
+        // Calculate rent due
+        const rentDue = calculateRentDue(
+          tenant.startingDate,
+          tenant.totalRentPerMonth,
+          lastPayment?.paymentDate
+        );
+
+        return {
+          ...tenant.toObject(),
+          paymentInfo: {
+            lastPayment: lastPayment
+              ? {
+                  amount: lastPayment.amount,
+                  date: lastPayment.paymentDate,
+                  method: lastPayment.paymentMethod,
+                  status: lastPayment.status,
+                }
+              : null,
+            rentDue: rentDue.totalDue,
+            monthsDue: rentDue.monthsDue,
+            nextDueDate: tenant.nextDueDate || rentDue.nextDueDate,
+            nextDueAmount: tenant.nextDueAmount || rentDue.totalDue,
+            isLate: rentDue.isLate,
+            totalPaidAmount: tenant.totalPaidAmount,
+            lastPaymentDate: tenant.lastPaymentDate,
+            lastPaymentAmount: tenant.lastPaymentAmount,
+          },
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      tenants: tenantsWithPayments,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching tenants", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching tenants",
+      error: error.message,
+    });
   }
 });
 
@@ -59,11 +105,58 @@ router.get("/tenants/:landlordId", async (req, res) => {
       .populate("landlordId", "name email")
       .select("-password");
 
-    res.status(200).json(tenants);
+    // Get payment information for each tenant
+    const tenantsWithPayments = await Promise.all(
+      tenants.map(async (tenant) => {
+        // Get the last payment
+        const lastPayment = await Payment.findOne({
+          tenantId: tenant._id,
+        }).sort({ paymentDate: -1 });
+
+        // Calculate rent due
+        const rentDue = calculateRentDue(
+          tenant.startingDate,
+          tenant.totalRentPerMonth,
+          lastPayment?.paymentDate
+        );
+
+        // Get total payments made
+        const totalPayments = await Payment.aggregate([
+          { $match: { tenantId: tenant._id } },
+          { $group: { _id: null, total: { $sum: "$amount" } } },
+        ]);
+
+        return {
+          ...tenant.toObject(),
+          paymentInfo: {
+            lastPayment: lastPayment
+              ? {
+                  amount: lastPayment.amount,
+                  date: lastPayment.paymentDate,
+                  method: lastPayment.paymentMethod,
+                  status: lastPayment.status,
+                }
+              : null,
+            rentDue: rentDue.totalDue,
+            monthsDue: rentDue.monthsDue,
+            nextDueDate: rentDue.nextDueDate,
+            isLate: rentDue.isLate,
+            totalPaid: totalPayments[0]?.total || 0,
+          },
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      tenants: tenantsWithPayments,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching tenants", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching tenants",
+      error: error.message,
+    });
   }
 });
 
