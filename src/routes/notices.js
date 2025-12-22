@@ -17,7 +17,6 @@ router.post("/", async (req, res) => {
 // READ all Notices
 router.get("/", async (req, res) => {
   const { type } = req.query;
-  console.log("type", req);
   const filter = {};
   // If the type is "all", don't filter by type, just fetch all notices
   if (type && type !== "all") {
