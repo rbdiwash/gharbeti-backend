@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Notification = require("../../src/models/Notification");
+const Notification = require("../models/Notification");
 
 // Send Buzz
 router.post("/send", async (req, res) => {
