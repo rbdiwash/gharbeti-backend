@@ -15,6 +15,7 @@ const propertyRoutes = require("./src/routes/property");
 const paymentRoutes = require("./src/routes/payments");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpecs = require("./src/config/swagger");
+
 dotenv.config();
 connectDB();
 
