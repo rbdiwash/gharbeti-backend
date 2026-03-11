@@ -1,6 +1,6 @@
 const express = require("express");
 const Buzz = require("../../models/Landlord/buzz");
-const Notification = require("../../models/notification");
+const Notification = require("../../models/Notification");
 
 const router = express.Router();
 
@@ -39,7 +39,7 @@ router.get("/tenant/:tenantId", async (req, res) => {
   try {
     const buzzes = await Buzz.find({ tenantId: req.params.tenantId }).populate(
       "landlordId",
-      "name"
+      "name",
     );
     res.json(buzzes);
   } catch (error) {
