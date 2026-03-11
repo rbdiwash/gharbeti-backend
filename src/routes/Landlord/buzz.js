@@ -1,6 +1,6 @@
 const express = require("express");
 const Buzz = require("../../models/Landlord/buzz");
-const Notification = require("../models/Notification");
+const Notification = require("../../models/notification");
 
 const router = express.Router();
 
@@ -16,15 +16,17 @@ router.post("/", async (req, res) => {
     const buzz = new Buzz({ tenantId, landlordId, message, dueAmount });
     await buzz.save();
     const notification = new Notification({
-      userId: tenantId,
+      senderId: landlordId,
+      recipientId: tenantId,
+      title: "Buzz",
       message: `You have been buzzed for Rs. ${dueAmount}: ${message}`,
+      type: "buzz",
     });
     await notification.save();
     res.status(201).json({
       message: "Buzz sent and notification delivered",
       buzz,
     });
-    res.status(201).json({ message: "Buzz sent successfully", buzz });
   } catch (error) {
     res
       .status(500)
