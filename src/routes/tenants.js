@@ -114,7 +114,7 @@ router.post("/verify", async (req, res) => {
     const tenant = await Tenant.findOne({ email, invitationCode });
 
     console.log(tenant);
-    if (tenant.inviteAccepted) {
+    if (tenant?.inviteAccepted) {
       return res.status(202).json({
         message: "You have already verified your invitation. Please Proceed",
         status: "already_verified",
@@ -122,7 +122,9 @@ router.post("/verify", async (req, res) => {
     }
 
     if (!tenant) {
-      return res.status(404).json({ message: "Invalid invitation." });
+      return res
+        .status(404)
+        .json({ message: "Invalid invitation code or check your email" });
     }
 
     // Update tenant status
@@ -193,7 +195,7 @@ router.post("/set-password", async (req, res) => {
     // Find the user and populate landlord information
     const user = await User.findOne({ email, role: "tenant" }).populate(
       "landlordId",
-      "name email phoneNumber location"
+      "name email phoneNumber location",
     );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -392,12 +394,12 @@ router.put("/:tenantId", async (req, res) => {
       User.findByIdAndUpdate(
         tenantId,
         { $set: userUpdates },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       ).select("-password"),
       Tenant.findByIdAndUpdate(
         tenant._id,
         { $set: tenantUpdates },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       ),
     ]);
 
