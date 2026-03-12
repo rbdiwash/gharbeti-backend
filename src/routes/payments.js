@@ -5,11 +5,20 @@ const User = require("../models/User");
 const { calculateRentDue } = require("../utils/rentCalculator");
 
 /**
- * @swagger
+ * @openapi
  * /api/payments/tenant/{tenantId}/due:
  *   get:
  *     summary: Get rent due for a tenant
  *     tags: [Payments]
+ *     parameters:
+ *       - in: path
+ *         name: tenantId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Rent due info }
+ *       404: { description: Tenant not found }
+ *       500: { description: Server error }
  */
 router.get("/tenant/:tenantId/due", async (req, res) => {
   try {
@@ -55,11 +64,33 @@ router.get("/tenant/:tenantId/due", async (req, res) => {
 });
 
 /**
- * @swagger
+ * @openapi
  * /api/payments:
  *   post:
  *     summary: Record a new payment
  *     tags: [Payments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [tenantId, landlordId, amount, paymentMethod]
+ *             properties:
+ *               tenantId: { type: string }
+ *               landlordId: { type: string }
+ *               amount: { type: number }
+ *               paymentDate: { type: string, format: date-time }
+ *               paymentMethod: { type: string }
+ *               nextDueDate: { type: string }
+ *               nextDueAmount: { type: number }
+ *               latePayment: { type: boolean }
+ *               notes: { type: string }
+ *               attachments: { type: array }
+ *               transactionId: { type: string }
+ *     responses:
+ *       201: { description: Payment recorded successfully }
+ *       500: { description: Server error }
  */
 router.post("/", async (req, res) => {
   try {
@@ -132,11 +163,19 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * @swagger
+ * @openapi
  * /api/payments/tenant/{tenantId}:
  *   get:
  *     summary: Get payment history for a tenant
  *     tags: [Payments]
+ *     parameters:
+ *       - in: path
+ *         name: tenantId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: List of payments }
+ *       500: { description: Server error }
  */
 router.get("/tenant/:tenantId", async (req, res) => {
   try {
@@ -154,11 +193,19 @@ router.get("/tenant/:tenantId", async (req, res) => {
 });
 
 /**
- * @swagger
+ * @openapi
  * /api/payments/landlord/{landlordId}:
  *   get:
  *     summary: Get all payments for a landlord's tenants
  *     tags: [Payments]
+ *     parameters:
+ *       - in: path
+ *         name: landlordId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: List of payments }
+ *       500: { description: Server error }
  */
 router.get("/landlord/:landlordId", async (req, res) => {
   try {
@@ -176,11 +223,27 @@ router.get("/landlord/:landlordId", async (req, res) => {
 });
 
 /**
- * @swagger
+ * @openapi
  * /api/payments/{paymentId}/verify:
  *   post:
  *     summary: Verify a payment (landlord only)
  *     tags: [Payments]
+ *     parameters:
+ *       - in: path
+ *         name: paymentId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               verifiedBy: { type: string }
+ *     responses:
+ *       200: { description: Payment verified }
+ *       404: { description: Payment not found }
+ *       500: { description: Server error }
  */
 router.post("/:paymentId/verify", async (req, res) => {
   try {

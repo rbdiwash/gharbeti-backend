@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
 const Tenant = require("../models/Tenant");
 const Property = require("../models/Property");
+const { sendMail } = require("../utils/mailer");
 
 // Register User
 const registerUser = async (req, res) => {
@@ -51,7 +52,7 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email }).populate(
       "landlordId",
-      "name email phoneNumber address totalRooms profileImage"
+      "name email phoneNumber address totalRooms profileImage",
     );
 
     if (user && (await bcrypt.compare(password, user.password))) {
@@ -110,7 +111,7 @@ const loginUser = async (req, res) => {
 
         response.tenants = tenants.map((tenant) => {
           const tenantInfo = tenantDetails.find(
-            (t) => t.email === tenant.email
+            (t) => t.email === tenant.email,
           );
           return {
             _id: tenant._id,
@@ -167,12 +168,81 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const generateOTP = () => {
+  return String(Math.floor(100000 + Math.random() * 900000));
+};
+const hashOtp = (otp) => {
+  return crypto.createHash("sha256").update(otp).digest("hex");
+};
+
+const forgotPassword = async (req, res) => {
+  const { email, phoneNumber } = req.body;
+  try {
+    const user = await User.findOne({ email, phoneNumber });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const otp = generateOTP();
+    user.resetOtp = otp;
+    user.resetOtpExpires = Date.now() + 10 * 60 * 1000;
+    await user.save();
+    const htmlTemplate = `
+   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+   <h2 style="color: #333;">Password Reset OTP</h2>
+   <p style="font-size: 16px; color: #666;">Your OTP is <strong>${otp}</strong>. It expires in 10 minutes.</p>
+   <p style="font-size: 14px; color: #999;">If you did not request this reset, please ignore this email.</p>
+   <p style="font-size: 14px; color: #999;">Thank you for using our service.</p>
+   </div>
+   `;
+
+    await sendMail({
+      to: user.email,
+      subject: "Your password reset OTP",
+      text: `Your OTP is ${otp}. It expires in 10 minutes.`,
+      html: htmlTemplate,
+    });
+
+    res.status(200).json({
+      message: "Your OTP has been sent to your email",
+      data: { otp, expiresIn: Date.now() + 10 * 60 * 1000 },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Error sending OTP" });
+  }
+};
+
+const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    const user = await User.findOne({ email, resetOtp: otp });
+
+    if (!otp) {
+      return res.status(400).json({ message: "OTP is required" });
+    }
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (user.resetOtpExpires < Date.now()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+    if (user.resetOtp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+    user.resetOtp = null;
+    user.resetOtpExpires = null;
+    await user.save();
+    res.status(200).json({ message: "OTP verified successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Error verifying OTP" });
+  }
+};
+
 // Get User Profile
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId).populate(
       "landlordId",
-      "name email phoneNumber address totalRooms profileImage"
+      "name email phoneNumber address totalRooms profileImage",
     );
 
     if (!user) {
@@ -280,16 +350,16 @@ const getProfile = async (req, res) => {
         totalProperties: properties.length,
         totalRooms: properties.reduce(
           (sum, prop) => sum + (prop.totalRooms || 0),
-          0
+          0,
         ),
         occupiedRooms: properties.reduce(
           (sum, prop) => sum + (prop.occupiedRooms || 0),
-          0
+          0,
         ),
         availableRooms: properties.reduce(
           (sum, prop) =>
             sum + ((prop.totalRooms || 0) - (prop.occupiedRooms || 0)),
-          0
+          0,
         ),
       };
     }
@@ -330,10 +400,10 @@ const updateProfile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       { $set: updates },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate(
       "landlordId",
-      "name email phoneNumber address totalRooms profileImage"
+      "name email phoneNumber address totalRooms profileImage",
     );
 
     const response = {
@@ -371,7 +441,7 @@ const updateProfile = async (req, res) => {
         const updatedTenant = await Tenant.findOneAndUpdate(
           { email: user.email },
           { $set: tenantUpdates },
-          { new: true, runValidators: true }
+          { new: true, runValidators: true },
         );
 
         if (updatedTenant) {
@@ -423,4 +493,6 @@ module.exports = {
   getProfile,
   updateProfile,
   resetPassword,
+  forgotPassword,
+  verifyOtp,
 };

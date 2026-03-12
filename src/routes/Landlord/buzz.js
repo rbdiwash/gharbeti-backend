@@ -4,6 +4,29 @@ const Notification = require("../../models/Notification");
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /api/buzz:
+ *   post:
+ *     summary: Buzz a tenant (send reminder, e.g. rent)
+ *     tags: [Buzz]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [tenantId, landlordId, message, dueAmount]
+ *             properties:
+ *               tenantId: { type: string }
+ *               landlordId: { type: string }
+ *               message: { type: string }
+ *               dueAmount: { type: number }
+ *     responses:
+ *       201: { description: Buzz sent and notification delivered }
+ *       400: { description: All fields required }
+ *       500: { description: Server error }
+ */
 // 🔔 POST - Buzz a tenant
 router.post("/", async (req, res) => {
   const { tenantId, landlordId, message, dueAmount } = req.body;
@@ -34,6 +57,21 @@ router.post("/", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/buzz/tenant/{tenantId}:
+ *   get:
+ *     summary: Get all buzzes for a tenant
+ *     tags: [Buzz]
+ *     parameters:
+ *       - in: path
+ *         name: tenantId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: List of buzzes }
+ *       500: { description: Server error }
+ */
 // 📋 GET - All buzzes for a tenant
 router.get("/tenant/:tenantId", async (req, res) => {
   try {

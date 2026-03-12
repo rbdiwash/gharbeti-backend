@@ -3,6 +3,26 @@ const Notice = require("../models/Notice");
 const User = require("../models/User");
 const router = express.Router();
 
+/**
+ * @openapi
+ * /api/notices:
+ *   post:
+ *     summary: Create a notice
+ *     tags: [Notices]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title: { type: string }
+ *               content: { type: string }
+ *               type: { type: string }
+ *     responses:
+ *       201: { description: Notice created }
+ *       500: { description: Server error }
+ */
 // CREATE Notice
 router.post("/", async (req, res) => {
   try {
@@ -14,6 +34,21 @@ router.post("/", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/notices:
+ *   get:
+ *     summary: Get all notices (optional filter by type)
+ *     tags: [Notices]
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema: { type: string }
+ *         description: Filter by notice type (omit or "all" for all)
+ *     responses:
+ *       200: { description: List of notices }
+ *       500: { description: Server error }
+ */
 // READ all Notices
 router.get("/", async (req, res) => {
   const { type } = req.query;
@@ -30,6 +65,22 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/notices/{id}:
+ *   get:
+ *     summary: Get a single notice by ID
+ *     tags: [Notices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Notice found }
+ *       404: { description: Notice not found }
+ *       500: { description: Server error }
+ */
 // READ a Single Notice by ID
 router.get("/:id", async (req, res) => {
   try {
@@ -41,6 +92,31 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/notices/{id}:
+ *   put:
+ *     summary: Update a notice
+ *     tags: [Notices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title: { type: string }
+ *               content: { type: string }
+ *               type: { type: string }
+ *     responses:
+ *       200: { description: Notice updated }
+ *       404: { description: Notice not found }
+ *       500: { description: Server error }
+ */
 // UPDATE Notice
 router.put("/:id", async (req, res) => {
   try {
@@ -57,6 +133,22 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/notices/{id}:
+ *   delete:
+ *     summary: Delete a notice
+ *     tags: [Notices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Notice deleted successfully }
+ *       404: { description: Notice not found }
+ *       500: { description: Server error }
+ */
 // DELETE Notice
 router.delete("/:id", async (req, res) => {
   try {

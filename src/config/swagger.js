@@ -10,13 +10,27 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:8000",
+        url: "http://localhost:5000",
         description: "Development server",
       },
       {
         url: "https://gharbeti-backend.onrender.com",
         description: "Production server",
       },
+    ],
+    tags: [
+      { name: "Auth", description: "Authentication and password reset" },
+      { name: "Notices", description: "Notice management" },
+      { name: "Users", description: "User and tenant listing" },
+      { name: "Notifications", description: "In-app notifications" },
+      { name: "Maintenance", description: "Maintenance requests" },
+      { name: "Lease Agreements", description: "Lease agreement management" },
+      { name: "Messages", description: "Chat messages" },
+      { name: "Tenants", description: "Tenant invite and management" },
+      { name: "Profile", description: "User profile" },
+      { name: "Properties", description: "Property management" },
+      { name: "Payments", description: "Payment and rent" },
+      { name: "Buzz", description: "Landlord buzz (reminders)" },
     ],
     components: {
       schemas: {
@@ -30,9 +44,7 @@ const options = {
             },
             agreementPoints: {
               type: "array",
-              items: {
-                type: "string",
-              },
+              items: { type: "string" },
               description: "Array of agreement points",
             },
           },
@@ -40,7 +52,7 @@ const options = {
       },
     },
   },
-  apis: ["./src/routes/*.js"], // Path to the API routes
+  apis: ["./src/routes/*.js", "./src/routes/**/*.js"],
 };
 
 const specs = swaggerJsdoc(options);

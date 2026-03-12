@@ -1,5 +1,7 @@
 .qodo
 node_modules/
+.VSCodeCounter/
+.vscode/
 
 .env
 .env.local

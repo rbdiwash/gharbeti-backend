@@ -2,6 +2,32 @@ const express = require("express");
 const router = express.Router();
 const Property = require("../models/Property");
 
+/**
+ * @openapi
+ * /api/properties:
+ *   post:
+ *     summary: Create a new property
+ *     tags: [Properties]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [landlordId, name, address]
+ *             properties:
+ *               landlordId: { type: string }
+ *               name: { type: string }
+ *               address: { type: string }
+ *               totalRooms: { type: number }
+ *               occupiedRooms: { type: number }
+ *               description: { type: string }
+ *               amenities: { type: array, items: { type: string } }
+ *               images: { type: array, items: { type: string } }
+ *     responses:
+ *       201: { description: Property created }
+ *       500: { description: Server error }
+ */
 // Create a new property
 router.post("/", async (req, res) => {
   try {
@@ -34,6 +60,21 @@ router.post("/", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/properties/landlord/{landlordId}:
+ *   get:
+ *     summary: Get all properties for a landlord
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: path
+ *         name: landlordId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: List of properties }
+ *       500: { description: Server error }
+ */
 // Get all properties for a landlord
 router.get("/landlord/:landlordId", async (req, res) => {
   try {
@@ -46,6 +87,22 @@ router.get("/landlord/:landlordId", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/properties/{propertyId}:
+ *   get:
+ *     summary: Get a property by ID
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: path
+ *         name: propertyId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Property details }
+ *       404: { description: Property not found }
+ *       500: { description: Server error }
+ */
 // Get a specific property
 router.get("/:propertyId", async (req, res) => {
   try {
@@ -59,6 +116,35 @@ router.get("/:propertyId", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/properties/{propertyId}:
+ *   put:
+ *     summary: Update a property
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: path
+ *         name: propertyId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               address: { type: string }
+ *               totalRooms: { type: number }
+ *               occupiedRooms: { type: number }
+ *               description: { type: string }
+ *               amenities: { type: array }
+ *               images: { type: array }
+ *     responses:
+ *       200: { description: Property updated }
+ *       404: { description: Property not found }
+ *       500: { description: Server error }
+ */
 // Update a property
 router.put("/:propertyId", async (req, res) => {
   try {
@@ -79,6 +165,22 @@ router.put("/:propertyId", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/properties/{propertyId}:
+ *   delete:
+ *     summary: Delete a property
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: path
+ *         name: propertyId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Property deleted successfully }
+ *       404: { description: Property not found }
+ *       500: { description: Server error }
+ */
 // Delete a property
 router.delete("/:propertyId", async (req, res) => {
   try {

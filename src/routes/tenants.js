@@ -6,6 +6,37 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
 
+/**
+ * @openapi
+ * /api/tenants/invite:
+ *   post:
+ *     summary: Invite a tenant (landlord)
+ *     tags: [Tenants]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, landlordId]
+ *             properties:
+ *               name: { type: string }
+ *               email: { type: string }
+ *               phoneNumber: { type: string }
+ *               address: { type: string }
+ *               noOfRooms: { type: number }
+ *               totalRentPerMonth: { type: number }
+ *               startingDate: { type: string, format: date }
+ *               emergencyContactName: { type: string }
+ *               emergencyContactNumber: { type: string }
+ *               documentUrl: { type: string }
+ *               landlordId: { type: string }
+ *               profileImage: { type: string }
+ *     responses:
+ *       201: { description: Tenant invited, returns invitationCode }
+ *       400: { description: Email or phone already exists }
+ *       500: { description: Server error }
+ */
 // Invite Tenant
 router.post("/invite", async (req, res) => {
   try {
@@ -104,6 +135,28 @@ router.post("/invite", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/tenants/verify:
+ *   post:
+ *     summary: Verify tenant invitation (with code and email)
+ *     tags: [Tenants]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, invitationCode]
+ *             properties:
+ *               email: { type: string }
+ *               invitationCode: { type: string }
+ *     responses:
+ *       200: { description: Invitation verified }
+ *       202: { description: Already verified }
+ *       404: { description: Invalid code or email }
+ *       500: { description: Server error }
+ */
 // Verify Invitation
 router.post("/verify", async (req, res) => {
   console.log("Verifying tenant invitation:", req.body);
@@ -165,6 +218,28 @@ router.post("/verify", async (req, res) => {
 });
 
 // Set password after invitation verification
+/**
+ * @openapi
+ * /api/tenants/set-password:
+ *   post:
+ *     summary: Set password after accepting invitation
+ *     tags: [Tenants]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, newPassword]
+ *             properties:
+ *               email: { type: string }
+ *               newPassword: { type: string }
+ *     responses:
+ *       200: { description: Password set successfully }
+ *       400: { description: Invalid or already set }
+ *       404: { description: User not found }
+ *       500: { description: Server error }
+ */
 router.post("/set-password", async (req, res) => {
   const { email, invitationCode, password } = req.body;
 
@@ -243,6 +318,20 @@ router.post("/set-password", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/tenants:
+ *   get:
+ *     summary: Get all tenants (optional filter by landlordId)
+ *     tags: [Tenants]
+ *     parameters:
+ *       - in: query
+ *         name: landlordId
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: List of tenants with details }
+ *       500: { description: Server error }
+ */
 router.get("/", async (req, res) => {
   const { landlordId } = req.query;
 
@@ -291,6 +380,21 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/tenants/getByLandlordId/{landlordId}:
+ *   get:
+ *     summary: Get tenants by landlord ID
+ *     tags: [Tenants]
+ *     parameters:
+ *       - in: path
+ *         name: landlordId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: List of tenants }
+ *       500: { description: Server error }
+ */
 // GET tenants by landlordId
 router.get("/getByLandlordId/:landlordId", async (req, res) => {
   const { landlordId } = req.params;
@@ -338,6 +442,39 @@ router.get("/getByLandlordId/:landlordId", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/tenants/{tenantId}:
+ *   put:
+ *     summary: Update tenant details
+ *     tags: [Tenants]
+ *     parameters:
+ *       - in: path
+ *         name: tenantId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               email: { type: string }
+ *               phoneNumber: { type: string }
+ *               address: { type: string }
+ *               noOfRooms: { type: number }
+ *               totalRentPerMonth: { type: number }
+ *               startingDate: { type: string }
+ *               emergencyContactName: { type: string }
+ *               emergencyContactNumber: { type: string }
+ *               documentUrl: { type: string }
+ *               profileImage: { type: string }
+ *     responses:
+ *       200: { description: Tenant updated }
+ *       404: { description: Tenant not found }
+ *       500: { description: Server error }
+ */
 // Update tenant details
 router.put("/:tenantId", async (req, res) => {
   const { tenantId } = req.params;
@@ -434,6 +571,22 @@ router.put("/:tenantId", async (req, res) => {
 });
 
 // Delete tenant
+/**
+ * @openapi
+ * /api/tenants/{tenantId}:
+ *   delete:
+ *     summary: Delete a tenant
+ *     tags: [Tenants]
+ *     parameters:
+ *       - in: path
+ *         name: tenantId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Tenant deleted successfully }
+ *       404: { description: Tenant not found }
+ *       500: { description: Server error }
+ */
 router.delete("/:tenantId", async (req, res) => {
   const { tenantId } = req.params;
   console.log("Deleting tenant:", tenantId);

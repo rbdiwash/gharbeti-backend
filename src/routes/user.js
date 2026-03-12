@@ -7,6 +7,16 @@ const bcrypt = require("bcryptjs");
 const Payment = require("../models/Payment");
 const { calculateRentDue } = require("../utils/rentCalculator");
 
+/**
+ * @openapi
+ * /api/users:
+ *   get:
+ *     summary: Get all registered users (passwords excluded)
+ *     tags: [Users]
+ *     responses:
+ *       200: { description: List of users }
+ *       500: { description: Server error }
+ */
 // GET all registered users
 router.get("/", async (req, res) => {
   try {
@@ -17,6 +27,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/users/landlords:
+ *   get:
+ *     summary: Get all landlords
+ *     tags: [Users]
+ *     responses:
+ *       200: { description: List of landlords }
+ *       500: { description: Server error }
+ */
 // Get all landlords
 router.get("/landlords", async (req, res) => {
   try {
@@ -27,6 +47,21 @@ router.get("/landlords", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/users/tenants:
+ *   get:
+ *     summary: Get all tenants or filter by landlordId
+ *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: landlordId
+ *         schema: { type: string }
+ *         description: Filter tenants by landlord ID
+ *     responses:
+ *       200: { description: Tenants with payment info }
+ *       500: { description: Server error }
+ */
 // GET all tenants or tenants by landlordId
 router.get("/tenants", async (req, res) => {
   try {
@@ -93,6 +128,21 @@ router.get("/tenants", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/users/tenants/{landlordId}:
+ *   get:
+ *     summary: Get tenants by landlord ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: landlordId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Tenants with payment info }
+ *       500: { description: Server error }
+ */
 // GET tenants by specific landlordId
 router.get("/tenants/:landlordId", async (req, res) => {
   const { landlordId } = req.params;
@@ -160,6 +210,29 @@ router.get("/tenants/:landlordId", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/users/change-password:
+ *   post:
+ *     summary: Change password (requires current password)
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, currentPassword, newPassword]
+ *             properties:
+ *               email: { type: string }
+ *               currentPassword: { type: string }
+ *               newPassword: { type: string }
+ *     responses:
+ *       200: { description: Password changed successfully }
+ *       400: { description: Current password incorrect or missing fields }
+ *       404: { description: User not found }
+ *       500: { description: Server error }
+ */
 router.post("/change-password", async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
   console.log("Change password request body:", req.body);
@@ -225,6 +298,28 @@ router.post("/change-password", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/users/reset-password:
+ *   post:
+ *     summary: Reset password with token (from forgot-password flow)
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, token, newPassword]
+ *             properties:
+ *               email: { type: string }
+ *               token: { type: string }
+ *               newPassword: { type: string }
+ *     responses:
+ *       200: { description: Password reset successfully }
+ *       400: { description: Invalid or expired token }
+ *       500: { description: Server error }
+ */
 // Reset Password with Token
 router.post("/reset-password", async (req, res) => {
   const { email, token, newPassword } = req.body;
@@ -283,6 +378,27 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/users/admin/reset-password:
+ *   post:
+ *     summary: Admin reset user password (no current password)
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, newPassword]
+ *             properties:
+ *               email: { type: string }
+ *               newPassword: { type: string }
+ *     responses:
+ *       200: { description: Password reset successfully }
+ *       404: { description: User not found }
+ *       500: { description: Server error }
+ */
 // Admin Reset User Password
 router.post("/admin/reset-password", async (req, res) => {
   const { email, newPassword } = req.body;
