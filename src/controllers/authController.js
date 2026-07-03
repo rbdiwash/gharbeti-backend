@@ -4,6 +4,20 @@ const generateToken = require("../utils/generateToken");
 const Tenant = require("../models/Tenant");
 const Property = require("../models/Property");
 const { sendMail } = require("../utils/mailer");
+const {
+  generateOtp,
+  hashOtp,
+  OTP_EXPIRY_MS_REGISTRATION,
+  OTP_EXPIRY_MS_RESET,
+} = require("../utils/otp");
+
+const REGISTRATION_OTP_HTML = (otp) => `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h2 style="color: #333;">Verify your Gharbeti account</h2>
+    <p style="font-size: 16px; color: #666;">Your verification OTP is <strong>${otp}</strong>.</p>
+    <p style="font-size: 14px; color: #999;">This code expires in 1 hour.</p>
+  </div>
+`;
 
 // Register User
 const registerUser = async (req, res) => {
@@ -14,13 +28,49 @@ const registerUser = async (req, res) => {
     if (userExists)
       return res.status(400).json({ message: "User already exists" });
 
-    // Create user with all fields from request body
+    if (role === "landlord") {
+      const otp = generateOtp();
+      const otpExpires = new Date(Date.now() + OTP_EXPIRY_MS_REGISTRATION);
+      const { isEmailVerified, isVerified, active, ...landlordFields } =
+        req.body;
+
+      const user = await User.create({
+        ...landlordFields,
+        name,
+        email,
+        password,
+        role: "landlord",
+        isEmailVerified: false,
+        isVerified: false,
+        active: false,
+        emailVerificationOtpHash: hashOtp(otp),
+        emailVerificationOtpExpires: otpExpires,
+      });
+
+      await sendMail({
+        to: user.email,
+        subject: "Verify your Gharbeti landlord account",
+        text: `Your verification OTP is ${otp}. It expires in 1 hour.`,
+        html: REGISTRATION_OTP_HTML(otp),
+      });
+
+      return res.status(201).json({
+        message: "Registration successful. Please verify your email with the OTP sent.",
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isEmailVerified: false,
+        emailVerificationOtpExpires: otpExpires,
+      });
+    }
+
     const user = await User.create({
       name,
       email,
       password,
       role,
-      ...req.body, // This will include all other fields from the request body
+      ...req.body,
     });
 
     if (user) {
@@ -34,7 +84,6 @@ const registerUser = async (req, res) => {
         role: user.role,
         totalRooms: user.totalRooms,
         token: generateToken(user._id),
-        // Include all other fields from the user object
         ...user.toObject(),
       });
     } else {
@@ -42,6 +91,92 @@ const registerUser = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+const verifyRegistrationOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ message: "Email and OTP are required" });
+  }
+
+  try {
+    const user = await User.findOne({ email, role: "landlord" });
+    if (!user) {
+      return res.status(404).json({ message: "Landlord not found" });
+    }
+    if (user.isEmailVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+    if (!user.emailVerificationOtpHash || !user.emailVerificationOtpExpires) {
+      return res.status(400).json({ message: "No verification OTP found. Please register again or resend OTP." });
+    }
+    if (user.emailVerificationOtpExpires < new Date()) {
+      return res.status(400).json({ message: "OTP expired. Please request a new one." });
+    }
+    if (user.emailVerificationOtpHash !== hashOtp(otp)) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    user.isEmailVerified = true;
+    user.isVerified = true;
+    user.active = true;
+    user.emailVerificationOtpHash = undefined;
+    user.emailVerificationOtpExpires = undefined;
+    await user.save();
+
+    res.status(200).json({
+      message: "Email verified successfully",
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isEmailVerified: true,
+      landlordId: user._id,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Error verifying OTP" });
+  }
+};
+
+const resendVerificationOtp = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  try {
+    const user = await User.findOne({ email, role: "landlord" });
+    if (!user) {
+      return res.status(404).json({ message: "Landlord not found" });
+    }
+    if (user.isEmailVerified) {
+      return res.status(400).json({ message: "Email is already verified" });
+    }
+
+    const otp = generateOtp();
+    const otpExpires = new Date(Date.now() + OTP_EXPIRY_MS_REGISTRATION);
+    user.emailVerificationOtpHash = hashOtp(otp);
+    user.emailVerificationOtpExpires = otpExpires;
+    await user.save();
+
+    await sendMail({
+      to: user.email,
+      subject: "Verify your Gharbeti landlord account",
+      text: `Your verification OTP is ${otp}. It expires in 1 hour.`,
+      html: REGISTRATION_OTP_HTML(otp),
+    });
+
+    res.status(200).json({
+      message: "Verification OTP resent to your email",
+      isEmailVerified: false,
+      emailVerificationOtpExpires: otpExpires,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Error sending OTP" });
   }
 };
 
@@ -56,11 +191,20 @@ const loginUser = async (req, res) => {
     );
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      if (user.role === "landlord" && !user.isEmailVerified) {
+        return res.status(403).json({
+          message: "Please verify your email before logging in",
+          isEmailVerified: false,
+          email: user.email,
+        });
+      }
+
       const response = {
         _id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
         token: generateToken(user._id),
       };
 
@@ -168,13 +312,6 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const generateOTP = () => {
-  return String(Math.floor(100000 + Math.random() * 900000));
-};
-const hashOtp = (otp) => {
-  return crypto.createHash("sha256").update(otp).digest("hex");
-};
-
 const forgotPassword = async (req, res) => {
   const { email, phoneNumber } = req.body;
   try {
@@ -182,16 +319,17 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const otp = generateOTP();
-    user.resetOtp = otp;
-    user.resetOtpExpires = Date.now() + 10 * 60 * 1000;
+    const otp = generateOtp();
+    const otpExpires = new Date(Date.now() + OTP_EXPIRY_MS_RESET);
+    user.resetOtpHash = hashOtp(otp);
+    user.resetOtpExpires = otpExpires;
     await user.save();
+
     const htmlTemplate = `
    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
    <h2 style="color: #333;">Password Reset OTP</h2>
    <p style="font-size: 16px; color: #666;">Your OTP is <strong>${otp}</strong>. It expires in 10 minutes.</p>
    <p style="font-size: 14px; color: #999;">If you did not request this reset, please ignore this email.</p>
-   <p style="font-size: 14px; color: #999;">Thank you for using our service.</p>
    </div>
    `;
 
@@ -204,7 +342,7 @@ const forgotPassword = async (req, res) => {
 
     res.status(200).json({
       message: "Your OTP has been sent to your email",
-      data: { otp, expiresIn: Date.now() + 10 * 60 * 1000 },
+      resetOtpExpires: otpExpires,
     });
   } catch (error) {
     res.status(500).json({ message: error.message || "Error sending OTP" });
@@ -213,23 +351,28 @@ const forgotPassword = async (req, res) => {
 
 const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
-  try {
-    const user = await User.findOne({ email, resetOtp: otp });
 
-    if (!otp) {
-      return res.status(400).json({ message: "OTP is required" });
-    }
+  if (!email || !otp) {
+    return res.status(400).json({ message: "Email and OTP are required" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    if (user.resetOtpExpires < Date.now()) {
+    if (!user.resetOtpHash || !user.resetOtpExpires) {
+      return res.status(400).json({ message: "No reset OTP found" });
+    }
+    if (user.resetOtpExpires < new Date()) {
       return res.status(400).json({ message: "OTP expired" });
     }
-    if (user.resetOtp !== otp) {
+    if (user.resetOtpHash !== hashOtp(otp)) {
       return res.status(400).json({ message: "Invalid OTP" });
     }
-    user.resetOtp = null;
-    user.resetOtpExpires = null;
+
+    user.resetOtpHash = undefined;
+    user.resetOtpExpires = undefined;
     await user.save();
     res.status(200).json({ message: "OTP verified successfully" });
   } catch (error) {
@@ -489,6 +632,8 @@ const updateProfile = async (req, res) => {
 
 module.exports = {
   registerUser,
+  verifyRegistrationOtp,
+  resendVerificationOtp,
   loginUser,
   getProfile,
   updateProfile,

@@ -1,6 +1,8 @@
 const express = require("express");
 const {
   registerUser,
+  verifyRegistrationOtp,
+  resendVerificationOtp,
   loginUser,
   resetPassword,
   forgotPassword,
@@ -12,7 +14,7 @@ const router = express.Router();
  * @openapi
  * /api/auth/register:
  *   post:
- *     summary: Register a new user
+ *     summary: Register a new user (landlords receive email OTP, valid 1 hour)
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -34,6 +36,51 @@ const router = express.Router();
  *       500: { description: Server error }
  */
 router.post("/register", registerUser);
+
+/**
+ * @openapi
+ * /api/auth/verify-email:
+ *   post:
+ *     summary: Verify landlord email with OTP (valid 1 hour)
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, otp]
+ *             properties:
+ *               email: { type: string }
+ *               otp: { type: string }
+ *     responses:
+ *       200: { description: Email verified, returns token }
+ *       400: { description: Invalid or expired OTP }
+ *       404: { description: Landlord not found }
+ */
+router.post("/verify-email", verifyRegistrationOtp);
+
+/**
+ * @openapi
+ * /api/auth/resend-verification-otp:
+ *   post:
+ *     summary: Resend landlord registration OTP
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string }
+ *     responses:
+ *       200: { description: OTP resent }
+ *       400: { description: Already verified }
+ *       404: { description: Landlord not found }
+ */
+router.post("/resend-verification-otp", resendVerificationOtp);
 
 /**
  * @openapi

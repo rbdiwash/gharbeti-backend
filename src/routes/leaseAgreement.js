@@ -108,7 +108,7 @@ router.post("/", async (req, res) => {
  *         description: ID of the landlord
  *     responses:
  *       200:
- *         description: Lease agreement found
+ *         description: Lease agreement found, or empty array if none exists
  *         content:
  *           application/json:
  *             schema:
@@ -116,10 +116,12 @@ router.post("/", async (req, res) => {
  *               properties:
  *                 success:
  *                   type: boolean
- *                 agreement:
- *                   $ref: '#/components/schemas/LeaseAgreement'
- *       404:
- *         description: No agreement found
+ *                 agreements:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/LeaseAgreement'
+ *                 count:
+ *                   type: integer
  *       500:
  *         description: Server error
  */
@@ -131,17 +133,18 @@ router.get("/:landlordId", async (req, res) => {
       .populate("landlordId", "name email")
       .sort({ createdAt: -1 }); // Get all agreements, sorted by newest first
 
-    if (!leases || leases.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No agreements found for this landlord",
+    if (!leases) {
+      return res.json({
+        success: true,
+        agreements: [],
+        count: 0,
       });
     }
 
     res.json({
       success: true,
       agreements: leases,
-      count: leases.length,
+      count: 1,
     });
   } catch (err) {
     console.error("Error fetching lease agreements:", err);

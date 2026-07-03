@@ -18,6 +18,9 @@ const UserSchema = new mongoose.Schema(
     documentUrl: { type: String },
     profileImage: { type: String },
     isVerified: { type: Boolean, default: false },
+    isEmailVerified: { type: Boolean, default: false },
+    emailVerificationOtpHash: { type: String },
+    emailVerificationOtpExpires: { type: Date },
     inviteAccepted: { type: Boolean, default: false },
     active: { type: Boolean, default: true },
     documentsVerified: { type: Boolean, default: false },
@@ -29,6 +32,8 @@ const UserSchema = new mongoose.Schema(
     lastPaymentAmount: { type: Number, default: 0 },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    resetOtpHash: { type: String },
+    resetOtpExpires: { type: Date },
     createdAt: {
       type: Date,
       default: Date.now,
